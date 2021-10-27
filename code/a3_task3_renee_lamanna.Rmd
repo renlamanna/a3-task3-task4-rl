@@ -1,0 +1,60 @@
+---
+title: "a3_task3_renee_lamanna"
+author: "Renee LaManna"
+date: "10/27/2021"
+output: html_document
+---
+
+## Setup
+
+- Attatching packages
+- Set codechunk options
+
+```{r setup, include = TRUE, warnings = FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+
+library (tidyverse)
+library (here)
+library (janitor)
+```
+
+## Read in Data
+
+- urchins.csv = file containing data for red and purple urchins observed at 5 sites along the Santa Barbara coast
+
+```{r}
+# Read in urchins.csv as `urchins`
+urchins <- read_csv(here("data", "urchins.csv"))
+```
+
+## Data wrangling and cleaning
+
+- Using clean_names(), create a new dataset, `urchins_clean` that is converted to lowersnakecase
+
+```{r}
+urchins_clean <- urchins %>% 
+  clean_names()
+```
+
+## Data Visualization
+
+- Create histogram comparing distribution of sizes between purple and red urchins
+- Use urchins_clean as data and indicate size on the x-axis, the y-axis will automatically be count
+- Use geom_historgam() to indicate type of graph and set bin size to 10
+- Use facet_wrap() fxn to organize purple and red urchins into separate graphs
+- Added theme_minimal(), renames axis, added title, subtitle, and caption all with labs()
+
+```{r}
+ggplot(data = urchins_clean, aes(x = size)) +
+  geom_histogram(bins = 10) +
+  facet_wrap(~ common_name) +
+  theme_minimal() +
+  labs( x = "Urchin diameter (cm)", 
+        y = "Number of urchins",
+        title = "Urchin diameter distribution for purple and red urchins",
+        subtitle = "Santa Barbara, CA",
+        caption = "Figure 1. Size, represented as urchin diameter (cm) distribution for both purple and red urchins at 5 different sites along Santa Barbara coast")
+```
+
+
+
