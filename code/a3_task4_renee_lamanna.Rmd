@@ -38,7 +38,8 @@ naples_urchins <- urchins %>%
   filter(common_name == "Purple Urchin") %>% 
   mutate(date = mdy(date)) %>% 
   mutate(year = year(date)) %>% 
-  filter(year == 2010)
+  filter(year == 2010) %>% 
+  filter(site == "NAPL") 
   
 ```
 
