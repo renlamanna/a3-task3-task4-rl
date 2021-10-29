@@ -1,38 +1,36 @@
 ---
-title: "a3_task4_renee_lamanna.Rmd"
+title: "Task 4: Purple Urchins at Naples Reef w/ and w/out Kelp Removal"
 author: "Renee LaManna"
 date: "10/28/2021"
 output: html_document
 ---
+## Overview 
+This code wrangles data to compare size distributions of purple urchins under control treatments where no kelp was removed and annual treatments where kelp was removed at Naples Reef. The data is then visualized with an exploratory histogram and QQ-plot to determine normality. Finally, a summary statistics table is also created to compare the size distribution of purple urchins between the controlled and annual treatments. This data came from a scientific article titled, "SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution", written by Daniel Reed and published in 2020. The dataset, urchins.csv describes the size frequency distribution of red and purple sea urchins at Santa Barbara Channel - Long Term Ecological Research long-term kelp removal experiment sites.
 
-### Setup
+Data Citation: Santa Barbara Coastal LTER and D. Reed. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b
 
-- Attatching packages
-- Set codechunk options
+## Setup
+Attaching packages and set codechunk options
 
 ```{r setup, include = TRUE, warnings = FALSE, message = FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(tidyverse)
 library(here)
 library(janitor)
 library(lubridate)
-library (kableExtra)
+library(kableExtra)
 ```
 
-### Read in Data
-
-- urchins.csv = file containing data for red and purple urchins observed at 5 sites along the Santa Barbara coast
+## Read in Data
+read in urchins.csv, file containing data for red and purple urchins observed at 5 sites along the Santa Barbara coast
 
 ```{r}
-# Read in urchins.csv as `urchins`
 urchins <- read_csv(here("data", "urchins.csv"))
 ```
 
-Within that .Rmd, read in the urchins data and write code to compare the mean size of purple urchins in CONTROL (no giant kelp removal) or ANNUAL (annual kelp removal) sections of Naples Reef in 2010. You should write nicely annotated code, with clear sections and text as useful, to: 
 
-Wrangle the urchins data to only include Naples Reef observations for purple urchins observed in 2010. Hint: convert date to "Date" class with lubridate, then use the `year()` functions to add a new columns for year that you can use as variable for filtering. 
-
-### Data Wrangling
+## Data Wrangling
+Wrangle data to only include Naples Reef observations for purple urchins observed in 2010
 
 ```{r}
 naples_urchins <- urchins %>% 
@@ -44,36 +42,47 @@ naples_urchins <- urchins %>%
   
 ```
 
-### Data Visualization
+## Data Visualization
+Made exploratory faceted histograms and qq-plots comparing annual(kelp removal) vs control (no kelp removal) treatments to determine if data is normally distributed
 
 ```{r}
+# Make exploratory histogram
 ggplot(data = naples_urchins, aes(x = size)) +
   geom_histogram(bins = 12) +
   facet_wrap(~treatment)
 
+# Make exploratory QQ-plot
 ggplot(data = naples_urchins, aes(sample = size)) +
-  geom_qq() +
-  geom_qq_line()
+  stat_qq() +
+  geom_qq_line() + # plot line to compare linear relationship
   facet_wrap(~ treatment)
 ```
-Given the exploratory faceted histograms and QQ-plots above, I would consider fthe size distribution of purple urchins at Naples in 2010 both in control and annual to be normally distributed. The QQ-plot shows a somewhat linear pattern...
 
-### Summary Statistics
+Given the exploratory faceted histograms and QQ-plots above, I would consider the size distribution of purple urchins at Naples in 2010 both in control and annual to be normally distributed. The QQ-plot shows a somewhat linear pattern. I added a linear line for better comparison. Most of the observations appear to fall within that line, especially within the annual treatment, with a few less in the control. Additionally, the histogram is approximately bell-shaped and symmetrical. After visual observation of the faceted histograms and QQ-plots, I assume normality.
+
+## Summary Statistics
+Create a summary statistic table with the mean, median, sd, and count of urchin size grouping by treatment
 
 ```{r}
+# Data wrangling to prepare for table
 naples_summary <- naples_urchins %>% 
   group_by(treatment) %>% 
   summarise(mean = round(mean(size), 2), 
             median = median(size), 
             sd = round(sd(size), 2), 
             count = n())
- 
-kable(naples_summary) %>% 
-  kable_styling(full_width = FALSE,
-                bootstrap_options = "hover",
+
+# kable() from the kableExtra package used to finalize table
+kable(naples_summary,
+      col.names = c("Species", "Mean (cm)", "Median (cm)", "SD (cm)", "Count"),
+      caption = "Table 1: Mean, median, sd, and count values of purple urchins' diameter(cm) under controlled and annual treatments at Naples Reef, Santa Barbara", 
+      digit = 2) %>% 
+      kable_styling(full_width = FALSE,
+                bootstrap_options = "bordered",
                 position = "left") 
   
 ```
 
-Create a finalized basic summary table (with table caption above) of descriptive statistics for both groups (including at least the mean, standard deviation, and sample size by treatment). 
+
+## End Task
 

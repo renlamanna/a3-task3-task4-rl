@@ -8,13 +8,13 @@ output: html_document
 ## Overview 
 This code wrangles and visualizes data to compare size distributions of purple and red urchins along the Santa Barbara coast in Section 1. A summary statistics table is also created for this same data. Then, in Section 2, this code wrangles and visualizes data exploring purple urchin counts by site and year. This data came from a scientific article titled, "SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution", written by Daniel Reed and published in 2020. The dataset, urchins.csv is used for both sections and describes the size frequency distribution of red and purple sea urchins at Santa Barbara Channel - Long Term Ecological Research long-term kelp removal experiment sites.
 
-Date Citation: Santa Barbara Coastal LTER and D. Reed. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b 
+Data Citation: Santa Barbara Coastal LTER and D. Reed. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b 
 
 ## Setup
 Attach packages and set codechunk options
 
-```{r setup, include = TRUE, warnings = FALSE, message = FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```{r setup, include = TRUE, warning = FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 library (tidyverse)
 library (here)
@@ -121,12 +121,12 @@ total_purple_urchins <- purple_urchins %>%
 
 
 ## Data Visualization
-Make final graph of pruple urchins recorded at each site over time
+Make final graph of pruple urchins recorded at each site over time. Included both a column graph and line graph.
 
 ```{r}
 ggplot(data = total_purple_urchins, aes(x = year, y = count)) + 
   geom_col(aes(color = site_full, fill = site_full)) +
-  facet_wrap(~site_full) +
+  facet_wrap(~site_full, scales = "free") +
   scale_color_manual(values = c("white", "white", "white", "white", "white")) +
   scale_fill_manual(values = c("light blue", "seagreen", "khaki2", "lightsalmon3", "orangered4")) +
   theme_gray() +
@@ -136,14 +136,37 @@ ggplot(data = total_purple_urchins, aes(x = year, y = count)) +
         axis.text.x = element_text(angle = 60, size = 6),
         plot.caption = element_text(hjust = .4),
         legend.position = "none") +
- labs( x = "Year", 
+  scale_x_continuous(limits=c(2007,2020)) + 
+  scale_y_continuous(limits=c(0,1200)) +
+  labs( x = "Year", 
         y = "Number of urchins",
-        title = "Number of Purple Urchins per Site (LAMANNA)",
+        title = "Number of Purple Urchins per Site (LAMANNA)", 
         subtitle = "SBC-LTER: 2008-2020",
-        caption = "Figure 2. Size distribution, represented as urchin diameter (cm) for both purple and red urchins on Santa Barbara coast")
+        caption = "Figure 2. Size distribution, represented as urchin diameter (cm) for both purple urchins on Santa Barbara coast")
+```
+```{r}
+ggplot(data = total_purple_urchins, aes(x = year, y = count)) + 
+  geom_line(aes(color = site_full)) +
+  scale_color_manual(values = c("light blue", "seagreen", "khaki2", "lightsalmon3", "orangered4")) +
+  theme_gray() +
+  theme(axis.title.x = element_text(hjust = 0.5, vjust = 0.5),
+        plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5),
+        axis.text.x = element_text(size = 6),
+        plot.caption = element_text(hjust = .4),
+        legend.position = "right") +
+  scale_x_continuous(limits=c(2007,2020)) + 
+  scale_y_continuous(limits=c(0,1200)) +
+  labs( x = "Year", 
+        y = "Number of urchins",
+        title = "Number of Purple Urchins per Site (LAMANNA)", 
+        subtitle = "SBC-LTER: 2008-2020",
+        caption = "Figure 2. Size distribution, represented as urchin diameter (cm) for both purple urchins on Santa Barbara coast",
+        color = "Site Location",
+        Key = "Site")
 ```
 
-I think this graph reflects a decrease in purple urchin population. Here we ignored the treatment, control and annual. So in order to determine that the changes in counts per year are reflective of actual changes, we could separate the control from the annual. Changes in urchin population can also be due to sampling error or other environmental changes besides kelp removal such as warming sea surface temperatures. 
+I created two graphs, a histogram and a line for improved comparison. I believe the graphs reflect a decrease in purple urchin population. However here we included observations both from control and annual. Therefore, the data doesn't truly represent "actual changes". So in order to determine that the changes in counts per year are reflective of actual changes, we could separate the control from the annual. Changes in urchin population can also be due to sampling error or other environmental changes besides kelp removal such as warming sea surface temperatures. 
 
 
 ## End Task
