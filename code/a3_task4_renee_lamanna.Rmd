@@ -5,26 +5,75 @@ date: "10/28/2021"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+### Setup
+
+- Attatching packages
+- Set codechunk options
+
+```{r setup, include = TRUE, warnings = FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(lubridate)
+library (kableExtra)
 ```
 
-## R Markdown
+### Read in Data
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+- urchins.csv = file containing data for red and purple urchins observed at 5 sites along the Santa Barbara coast
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+# Read in urchins.csv as `urchins`
+urchins <- read_csv(here("data", "urchins.csv"))
 ```
 
-## Including Plots
+Within that .Rmd, read in the urchins data and write code to compare the mean size of purple urchins in CONTROL (no giant kelp removal) or ANNUAL (annual kelp removal) sections of Naples Reef in 2010. You should write nicely annotated code, with clear sections and text as useful, to: 
 
-You can also embed plots, for example:
+Wrangle the urchins data to only include Naples Reef observations for purple urchins observed in 2010. Hint: convert date to "Date" class with lubridate, then use the `year()` functions to add a new columns for year that you can use as variable for filtering. 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+### Data Wrangling
+
+```{r}
+naples_urchins <- urchins %>% 
+  clean_names() %>% 
+  filter(common_name == "Purple Urchin") %>% 
+  mutate(date = mdy(date)) %>% 
+  mutate(year = year(date)) %>% 
+  filter(year == 2010)
+  
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+### Data Visualization
+
+```{r}
+ggplot(data = naples_urchins, aes(x = size)) +
+  geom_histogram(bins = 12) +
+  facet_wrap(~treatment)
+
+ggplot(data = naples_urchins, aes(sample = size)) +
+  geom_qq() +
+  geom_qq_line()
+  facet_wrap(~ treatment)
+```
+Given the exploratory faceted histograms and QQ-plots above, I would consider fthe size distribution of purple urchins at Naples in 2010 both in control and annual to be normally distributed. The QQ-plot shows a somewhat linear pattern...
+
+### Summary Statistics
+
+```{r}
+naples_summary <- naples_urchins %>% 
+  group_by(treatment) %>% 
+  summarise(mean = round(mean(size), 2), 
+            median = median(size), 
+            sd = round(sd(size), 2), 
+            count = n())
+ 
+kable(naples_summary) %>% 
+  kable_styling(full_width = FALSE,
+                bootstrap_options = "hover",
+                position = "left") 
+  
+```
+
+Create a finalized basic summary table (with table caption above) of descriptive statistics for both groups (including at least the mean, standard deviation, and sample size by treatment). 
+
